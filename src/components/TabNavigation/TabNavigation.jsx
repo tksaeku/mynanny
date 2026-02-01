@@ -2,7 +2,6 @@ import { useState } from 'react';
 import {
   Tabs,
   Tab,
-  Paper,
   IconButton,
   Drawer,
   List,
@@ -45,23 +44,16 @@ const TabNavigation = ({ activeTab, onTabChange }) => {
     setDrawerOpen(false);
   };
 
-  const activeTabLabel = tabs.find((t) => t.id === activeTab)?.label || 'Summary';
-
   if (isMobile) {
     return (
-      <>
-        <Paper className="tab-navigation tab-navigation--mobile" elevation={0}>
-          <IconButton
-            onClick={() => setDrawerOpen(true)}
-            className="tab-navigation__menu-btn"
-            aria-label="Open menu"
-          >
-            <MenuIcon />
-          </IconButton>
-          <Typography variant="subtitle1" className="tab-navigation__current">
-            {activeTabLabel}
-          </Typography>
-        </Paper>
+      <div className="tab-navigation tab-navigation--mobile">
+        <IconButton
+          onClick={() => setDrawerOpen(true)}
+          className="tab-navigation__menu-btn"
+          aria-label="Open menu"
+        >
+          <MenuIcon />
+        </IconButton>
 
         <Drawer
           anchor="left"
@@ -87,12 +79,12 @@ const TabNavigation = ({ activeTab, onTabChange }) => {
             </List>
           </Box>
         </Drawer>
-      </>
+      </div>
     );
   }
 
   return (
-    <Paper className="tab-navigation" elevation={0}>
+    <div className="tab-navigation">
       <Tabs
         value={activeTab}
         onChange={handleChange}
@@ -109,7 +101,7 @@ const TabNavigation = ({ activeTab, onTabChange }) => {
           />
         ))}
       </Tabs>
-    </Paper>
+    </div>
   );
 };
 

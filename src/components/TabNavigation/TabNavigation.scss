@@ -1,42 +1,62 @@
 .tab-navigation {
-  margin-bottom: $spacing-md;
-  border-radius: $border-radius-md;
-  overflow: hidden;
+  // Desktop: center column of grid
+  justify-self: center;
 
   &--mobile {
     display: flex;
     align-items: center;
-    padding: $spacing-sm $spacing-md;
-    gap: $spacing-sm;
+    justify-self: start;
   }
 
   &__tabs {
-    background-color: $background-paper;
-
     .MuiTabs-indicator {
       height: 3px;
       border-radius: 3px 3px 0 0;
+      background-color: white;
+    }
+
+    .MuiTabs-flexContainer {
+      gap: $spacing-xs;
     }
   }
 
-  &__tab {
+  &__tab.MuiTab-root {
     min-height: 56px;
     text-transform: none;
     font-weight: 500;
-    font-size: $font-size-sm;
+    font-size: $font-size-base;
+    color: rgba(255, 255, 255, 0.85);
+    transition: color 0.2s ease-in-out, background-color 0.2s ease-in-out;
+
+    @include mobile {
+      min-height: 48px;
+    }
+
+    &:hover {
+      color: #ffffff;
+      background-color: rgba(255, 255, 255, 0.15);
+    }
 
     &.Mui-selected {
       font-weight: 600;
+      color: #ffffff;
+    }
+
+    .MuiTab-iconWrapper {
+      color: inherit;
+    }
+
+    .MuiSvgIcon-root {
+      color: inherit;
     }
   }
 
   &__menu-btn {
-    color: $primary-color;
-  }
+    color: white;
 
-  &__current {
-    font-weight: 600;
-    color: $text-primary;
+    &:hover {
+      background-color: rgba(white, 0.15);
+    }
   }
 
   &__drawer {

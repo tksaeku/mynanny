@@ -1,6 +1,7 @@
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
-import EntryForm, { FORM_TYPES } from './EntryForm';
+import EntryForm from './EntryForm';
+import { FORM_TYPES } from '../../constants';
 
 describe('EntryForm', () => {
   const defaultProps = {

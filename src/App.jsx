@@ -238,6 +238,67 @@ const App = () => {
     }
   };
 
+  // Bulk add handler - processes all entries and only reloads once
+  const handleBulkAdd = async (entries) => {
+    const errors = [];
+    let successCount = 0;
+
+    for (const { type, data: entry } of entries) {
+      try {
+        switch (type) {
+          case 'hours':
+            await addHoursEntry({
+              date: formatDateDisplay(entry.date),
+              dayOfMonth: getDayOfMonth(entry.date),
+              regularHours: entry.regularHours,
+              overtimeHours: entry.overtimeHours || 0,
+              totalHours: calculateTotalHours(entry.regularHours, entry.overtimeHours || 0)
+            });
+            break;
+          case 'mileage':
+            await addMileageEntry({
+              date: formatDateDisplay(entry.date),
+              miles: entry.miles,
+              purpose: entry.purpose || ''
+            });
+            break;
+          case 'expenses':
+            await addExpenseEntry({
+              date: formatDateDisplay(entry.date),
+              amount: entry.amount,
+              category: entry.category,
+              description: entry.description || ''
+            });
+            break;
+          case 'notes':
+            await addNotesEntry({
+              date: formatDateDisplay(entry.date),
+              category: entry.category,
+              note: entry.note
+            });
+            break;
+          default:
+            throw new Error(`Unknown entry type: ${type}`);
+        }
+        successCount++;
+      } catch (err) {
+        errors.push({
+          entry,
+          type,
+          message: err.message || `Failed to add ${type} entry`
+        });
+      }
+    }
+
+    // Only reload data once after all entries are processed
+    if (successCount > 0) {
+      await loadData();
+      showNotification(`${successCount} ${successCount === 1 ? 'entry' : 'entries'} added successfully`);
+    }
+
+    return { successCount, errors };
+  };
+
   const renderContent = () => {
     if (isLoading) {
       return (
@@ -264,6 +325,7 @@ const App = () => {
             expenses={data.expenses}
             notes={data.notes}
             config={data.config}
+            onBulkAdd={handleBulkAdd}
           />
         );
       case 'hours':
@@ -315,10 +377,10 @@ const App = () => {
     <div className="app">
       <header className="app-header">
         <h1>My Nanny</h1>
+        <TabNavigation activeTab={activeTab} onTabChange={setActiveTab} />
       </header>
 
       <main className="app-content">
-        <TabNavigation activeTab={activeTab} onTabChange={setActiveTab} />
         <div className="page-container">
           {renderContent()}
         </div>

@@ -1,13 +1,8 @@
 import { ToggleButton, ToggleButtonGroup, IconButton, Box, Typography } from '@mui/material';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
+import { VIEW_MODES } from '../../constants';
 import './ViewToggle.scss';
-
-export const VIEW_MODES = {
-  WEEKLY: 'weekly',
-  MONTHLY: 'monthly',
-  HISTORICAL: 'historical'
-};
 
 const ViewToggle = ({
   viewMode,

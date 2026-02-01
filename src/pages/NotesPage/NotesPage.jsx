@@ -2,7 +2,8 @@ import { useState } from 'react';
 import { Fab, Tooltip, Chip } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import DataTable from '../../components/DataTable';
-import EntryForm, { FORM_TYPES } from '../../components/EntryForm';
+import EntryForm from '../../components/EntryForm';
+import { FORM_TYPES } from '../../constants';
 import { formatDateDisplay, formatDateISO } from '../../utils/dateUtils';
 import './NotesPage.scss';
 

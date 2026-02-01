@@ -2,32 +2,8 @@ import { useState, useEffect } from 'react';
 import { TextField, MenuItem } from '@mui/material';
 import FormDialog from '../FormDialog';
 import { formatDateISO } from '../../utils/dateUtils';
+import { FORM_TYPES, EXPENSE_CATEGORIES, NOTE_CATEGORIES } from '../../constants';
 import './EntryForm.scss';
-
-export const FORM_TYPES = {
-  HOURS: 'hours',
-  MILEAGE: 'mileage',
-  EXPENSES: 'expenses',
-  NOTES: 'notes'
-};
-
-const EXPENSE_CATEGORIES = [
-  'Supplies',
-  'Food',
-  'Activities',
-  'Transportation',
-  'Medical',
-  'Other'
-];
-
-const NOTE_CATEGORIES = [
-  'General',
-  'Milestone',
-  'Health',
-  'Behavior',
-  'Activity',
-  'Other'
-];
 
 const getInitialValues = (formType) => {
   const today = formatDateISO(new Date());

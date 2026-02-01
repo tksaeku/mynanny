@@ -1,6 +1,7 @@
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
-import ViewToggle, { VIEW_MODES } from './ViewToggle';
+import ViewToggle from './ViewToggle';
+import { VIEW_MODES } from '../../constants';
 
 describe('ViewToggle', () => {
   const defaultProps = {

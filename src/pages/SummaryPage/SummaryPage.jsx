@@ -1,9 +1,12 @@
 import { useState, useMemo } from 'react';
-import { Paper, Typography, Divider, Box, Chip } from '@mui/material';
+import { Paper, Typography, Divider, Box, Chip, Fab, Tooltip } from '@mui/material';
+import AddIcon from '@mui/icons-material/Add';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import DirectionsCarIcon from '@mui/icons-material/DirectionsCar';
 import ReceiptIcon from '@mui/icons-material/Receipt';
-import ViewToggle, { VIEW_MODES } from '../../components/ViewToggle';
+import BulkEntryForm from '../../components/BulkEntryForm';
+import ViewToggle from '../../components/ViewToggle';
+import { VIEW_MODES } from '../../constants';
 import DataTable from '../../components/DataTable';
 import {
   getWeekStart,
@@ -23,9 +26,17 @@ import {
 import { calculatePeriodSummary, formatCurrency } from '../../utils/calculations';
 import './SummaryPage.scss';
 
-const SummaryPage = ({ hours = [], mileage = [], expenses = [], notes = [], config = {} }) => {
+const SummaryPage = ({
+  hours = [],
+  mileage = [],
+  expenses = [],
+  notes = [],
+  config = {},
+  onBulkAdd
+}) => {
   const [viewMode, setViewMode] = useState(VIEW_MODES.WEEKLY);
   const [currentDate, setCurrentDate] = useState(new Date());
+  const [bulkFormOpen, setBulkFormOpen] = useState(false);
 
   // Get date range based on view mode
   const dateRange = useMemo(() => {
@@ -259,6 +270,22 @@ const SummaryPage = ({ hours = [], mileage = [], expenses = [], notes = [], conf
           emptyMessage="No entries for this period"
         />
       </Box>
+
+      {/* Add Button */}
+      <div className="fab-container">
+        <Tooltip title="Add Entries">
+          <Fab color="primary" onClick={() => setBulkFormOpen(true)}>
+            <AddIcon />
+          </Fab>
+        </Tooltip>
+      </div>
+
+      {/* Bulk Entry Form */}
+      <BulkEntryForm
+        open={bulkFormOpen}
+        onClose={() => setBulkFormOpen(false)}
+        onBulkAdd={onBulkAdd}
+      />
     </div>
   );
 };

@@ -8,24 +8,35 @@
 }
 
 .app-header {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
   background-color: $primary-color;
   color: white;
-  padding: $spacing-md $spacing-lg;
+  padding: 0 $spacing-lg;
   box-shadow: $shadow-md;
   position: sticky;
   top: 0;
   z-index: 100;
+  min-height: 56px;
 
   @include mobile {
-    padding: $spacing-sm $spacing-md;
+    display: flex;
+    justify-content: space-between;
+    padding: 0 $spacing-sm;
+    min-height: 48px;
   }
 
   h1 {
     margin: 0;
     font-size: $font-size-xl;
     font-weight: 600;
+    justify-self: start;
 
     @include mobile {
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
       font-size: $font-size-lg;
     }
   }
@@ -43,7 +54,6 @@
 
 .page-container {
   @include card;
-  margin-top: $spacing-md;
 }
 
 // Loading state

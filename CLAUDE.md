@@ -4,17 +4,61 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Nanny tracking app for recording and calculating weekly pay. Tracks:
-- Date and hours worked
-- Mileage
-- Miscellaneous expenses
-- Notes
+Nanny tracking app for recording and calculating weekly pay. Password-protected React SPA with Google Sheets as the database backend.
 
-Configurable pay rate per hour and mileage rate. Outputs weekly pay totals (hours × rate + mileage + expenses).
+## Features
+
+- **Password Gate**: Simple password protection on app load
+- **Tab Navigation**: Summary, Hours, Mileage, Expenses, Notes tabs (hamburger menu on mobile)
+- **Summary Page**: View totals for weekly, monthly, or all-time periods with navigation arrows
+- **CRUD Operations**: Add, edit, delete entries for hours, mileage, expenses, and notes
+- **Configurable Rates**: Regular hourly rate, overtime rate, and mileage rate stored in Config sheet
+- **Pay Calculation**: Automatically calculates total due (hours × rate + mileage reimbursement + expenses)
 
 ## Tech Stack
 
-To be determined - this is a new project.
+- **Frontend**: React 18 + Vite + Material UI + SASS
+- **Database**: Google Sheets (read via Sheets API, write via Apps Script)
+- **Testing**: Vitest + React Testing Library
+
+## Development Commands
+
+```bash
+npm run dev      # Start dev server
+npm run build    # Production build
+npm run test     # Run tests in watch mode
+npm run test:run # Run tests once
+npm run lint     # ESLint
+npm run deploy   # Build and deploy to Dreamhost
+```
+
+## Environment Variables
+
+Create `.env` with:
+```
+VITE_GOOGLE_API_KEY=<Google API key with Sheets API enabled>
+VITE_GOOGLE_SHEET_ID=<Google Sheet ID>
+VITE_APPS_SCRIPT_URL=<Deployed Apps Script web app URL>
+```
+
+## Project Structure
+
+```
+src/
+├── components/     # Reusable UI components (DataTable, EntryForm, FormDialog, etc.)
+├── pages/          # Page components (SummaryPage, HoursPage, MileagePage, etc.)
+├── services/       # Google Sheets API integration
+└── utils/          # Date utilities, calculations
+```
+
+## Google Sheets Structure
+
+The app expects these sheet tabs:
+- **Hours**: Date, DayOfMonth, RegularHours, OvertimeHours, TotalHours
+- **Mileage**: Date, Miles, Purpose
+- **Expenses**: Date, Amount, Category, Description
+- **Notes**: Date, Category, Note
+- **Config**: Key-value pairs for rates (Regular Hourly Rate, Overtime Rate, Mileage Rate)
 
 ## Skills
 
