@@ -22,6 +22,8 @@ const columns = [
   {
     id: 'date',
     label: 'Date',
+    type: 'date',
+    sortable: true,
     width: 120,
     render: (value) => formatDateDisplay(value)
   },
@@ -87,17 +89,15 @@ const NotesPage = ({ data = [], onAdd, onEdit, onDelete, isLoading = false }) =>
     }
   };
 
-  // Sort by date descending
-  const sortedData = [...data].sort((a, b) => new Date(b.date) - new Date(a.date));
-
   return (
     <div className="notes-page">
       <DataTable
         columns={columns}
-        data={sortedData}
+        data={data}
         onEdit={handleEdit}
         onDelete={handleDelete}
         emptyMessage="No notes recorded yet. Click the + button to add your first note."
+        defaultSort={{ column: 'date', direction: 'desc' }}
       />
 
       <div className="fab-container">

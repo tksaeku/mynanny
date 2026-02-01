@@ -11,11 +11,15 @@ const columns = [
   {
     id: 'date',
     label: 'Date',
+    type: 'date',
+    sortable: true,
     render: (value) => formatDateDisplay(value)
   },
   {
     id: 'amount',
     label: 'Amount',
+    type: 'number',
+    sortable: true,
     align: 'right',
     render: (value) => formatCurrency(value || 0)
   },
@@ -77,17 +81,15 @@ const ExpensesPage = ({ data = [], onAdd, onEdit, onDelete, isLoading = false })
     }
   };
 
-  // Sort by date descending
-  const sortedData = [...data].sort((a, b) => new Date(b.date) - new Date(a.date));
-
   return (
     <div className="expenses-page">
       <DataTable
         columns={columns}
-        data={sortedData}
+        data={data}
         onEdit={handleEdit}
         onDelete={handleDelete}
         emptyMessage="No expenses recorded yet. Click the + button to add your first entry."
+        defaultSort={{ column: 'date', direction: 'desc' }}
       />
 
       <div className="fab-container">

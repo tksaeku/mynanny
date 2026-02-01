@@ -199,6 +199,51 @@ describe('dateUtils', () => {
     });
   });
 
+  describe('timezone handling - YYYY-MM-DD format parsed as local time', () => {
+    it('parseDate does not shift day when parsing YYYY-MM-DD', () => {
+      const result = parseDate('2026-01-26');
+      expect(result.getDate()).toBe(26);
+      expect(result.getMonth()).toBe(0);
+      expect(result.getFullYear()).toBe(2026);
+    });
+
+    it('formatDateDisplay returns same day for YYYY-MM-DD input', () => {
+      const result = formatDateDisplay('2026-01-26');
+      expect(result).toBe('01/26/2026');
+    });
+
+    it('getDayOfMonth returns correct day for YYYY-MM-DD input', () => {
+      expect(getDayOfMonth('2026-01-26')).toBe(26);
+      expect(getDayOfMonth('2026-01-01')).toBe(1);
+      expect(getDayOfMonth('2026-12-31')).toBe(31);
+    });
+
+    it('isDateInRange correctly handles YYYY-MM-DD string dates', () => {
+      const start = new Date(2026, 0, 1);
+      const end = new Date(2026, 0, 31);
+
+      expect(isDateInRange('2026-01-15', start, end)).toBe(true);
+      expect(isDateInRange('2026-01-01', start, end)).toBe(true);
+      expect(isDateInRange('2026-01-31', start, end)).toBe(true);
+      expect(isDateInRange('2026-02-01', start, end)).toBe(false);
+    });
+
+    it('formatDateDisplay round-trips correctly', () => {
+      const originalDate = '2026-01-26';
+      const displayed = formatDateDisplay(originalDate);
+      expect(displayed).toBe('01/26/2026');
+
+      const reparsed = parseDate(displayed);
+      expect(reparsed.getDate()).toBe(26);
+    });
+
+    it('handles edge case dates near midnight correctly', () => {
+      expect(getDayOfMonth('2026-01-01')).toBe(1);
+      expect(getDayOfMonth('2026-06-30')).toBe(30);
+      expect(getDayOfMonth('2026-12-31')).toBe(31);
+    });
+  });
+
   describe('getToday', () => {
     it('returns today with time set to midnight', () => {
       const result = getToday();

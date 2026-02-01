@@ -11,29 +11,39 @@ const columns = [
   {
     id: 'date',
     label: 'Date',
+    type: 'date',
+    sortable: true,
     render: (value) => formatDateDisplay(value)
   },
   {
     id: 'dayOfMonth',
     label: 'Day',
+    type: 'number',
+    sortable: true,
     align: 'center',
     width: 60
   },
   {
     id: 'regularHours',
     label: 'Regular',
+    type: 'number',
+    sortable: true,
     align: 'right',
     render: (value) => value?.toFixed(1) || '0.0'
   },
   {
     id: 'overtimeHours',
     label: 'OT',
+    type: 'number',
+    sortable: true,
     align: 'right',
     render: (value) => value?.toFixed(1) || '0.0'
   },
   {
     id: 'totalHours',
     label: 'Total',
+    type: 'number',
+    sortable: true,
     align: 'right',
     render: (value) => value?.toFixed(1) || '0.0'
   }
@@ -93,17 +103,15 @@ const HoursPage = ({ data = [], onAdd, onEdit, onDelete, isLoading = false }) =>
     }
   };
 
-  // Sort by date descending
-  const sortedData = [...data].sort((a, b) => new Date(b.date) - new Date(a.date));
-
   return (
     <div className="hours-page">
       <DataTable
         columns={columns}
-        data={sortedData}
+        data={data}
         onEdit={handleEdit}
         onDelete={handleDelete}
         emptyMessage="No hours recorded yet. Click the + button to add your first entry."
+        defaultSort={{ column: 'date', direction: 'desc' }}
       />
 
       <div className="fab-container">

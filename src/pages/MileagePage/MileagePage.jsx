@@ -10,11 +10,15 @@ const columns = [
   {
     id: 'date',
     label: 'Date',
+    type: 'date',
+    sortable: true,
     render: (value) => formatDateDisplay(value)
   },
   {
     id: 'miles',
     label: 'Miles',
+    type: 'number',
+    sortable: true,
     align: 'right',
     render: (value) => value?.toFixed(1) || '0.0'
   },
@@ -72,17 +76,15 @@ const MileagePage = ({ data = [], onAdd, onEdit, onDelete, isLoading = false }) 
     }
   };
 
-  // Sort by date descending
-  const sortedData = [...data].sort((a, b) => new Date(b.date) - new Date(a.date));
-
   return (
     <div className="mileage-page">
       <DataTable
         columns={columns}
-        data={sortedData}
+        data={data}
         onEdit={handleEdit}
         onDelete={handleDelete}
         emptyMessage="No mileage recorded yet. Click the + button to add your first entry."
+        defaultSort={{ column: 'date', direction: 'desc' }}
       />
 
       <div className="fab-container">

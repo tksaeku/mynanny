@@ -15,12 +15,31 @@ export const formatDateISO = (date) => {
 };
 
 /**
+ * Parse a date string without timezone issues
+ * @param {string} dateStr
+ * @returns {Date}
+ */
+const parseDateString = (dateStr) => {
+  // Handle YYYY-MM-DD format (from date input) - parse as local time, not UTC
+  if (dateStr.includes('-')) {
+    const [year, month, day] = dateStr.split('-').map(Number);
+    return new Date(year, month - 1, day);
+  }
+  // Handle MM/DD/YYYY format
+  if (dateStr.includes('/')) {
+    const [month, day, year] = dateStr.split('/').map(Number);
+    return new Date(year, month - 1, day);
+  }
+  return new Date(dateStr);
+};
+
+/**
  * Format a date for display (MM/DD/YYYY)
  * @param {Date|string} date
  * @returns {string}
  */
 export const formatDateDisplay = (date) => {
-  const d = typeof date === 'string' ? new Date(date) : date;
+  const d = typeof date === 'string' ? parseDateString(date) : date;
   const month = String(d.getMonth() + 1).padStart(2, '0');
   const day = String(d.getDate()).padStart(2, '0');
   const year = d.getFullYear();
@@ -33,7 +52,7 @@ export const formatDateDisplay = (date) => {
  * @returns {number}
  */
 export const getDayOfMonth = (date) => {
-  const d = typeof date === 'string' ? new Date(date) : date;
+  const d = typeof date === 'string' ? parseDateString(date) : date;
   return d.getDate();
 };
 
@@ -96,7 +115,7 @@ export const getMonthEnd = (date) => {
  * @returns {boolean}
  */
 export const isDateInRange = (date, start, end) => {
-  const d = typeof date === 'string' ? new Date(date) : date;
+  const d = typeof date === 'string' ? parseDateString(date) : date;
   return d >= start && d <= end;
 };
 

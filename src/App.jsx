@@ -13,6 +13,10 @@ import {
   addMileageEntry,
   addExpenseEntry,
   addNotesEntry,
+  updateHoursEntry,
+  updateMileageEntry,
+  updateExpenseEntry,
+  updateNotesEntry,
   deleteHoursEntry,
   deleteMileageEntry,
   deleteExpenseEntry,
@@ -82,6 +86,23 @@ const App = () => {
     }
   };
 
+  const handleEditHours = async (entry) => {
+    try {
+      await updateHoursEntry(entry.id, {
+        date: formatDateDisplay(entry.date),
+        dayOfMonth: getDayOfMonth(entry.date),
+        regularHours: entry.regularHours,
+        overtimeHours: entry.overtimeHours || 0,
+        totalHours: calculateTotalHours(entry.regularHours, entry.overtimeHours || 0)
+      });
+      showNotification('Hours entry updated successfully');
+      await loadData();
+    } catch (err) {
+      showNotification(err.message || 'Failed to update hours entry', 'error');
+      throw err;
+    }
+  };
+
   const handleDeleteHours = async (entry) => {
     try {
       await deleteHoursEntry(entry.id);
@@ -104,6 +125,21 @@ const App = () => {
       await loadData();
     } catch (err) {
       showNotification(err.message || 'Failed to add mileage entry', 'error');
+      throw err;
+    }
+  };
+
+  const handleEditMileage = async (entry) => {
+    try {
+      await updateMileageEntry(entry.id, {
+        date: formatDateDisplay(entry.date),
+        miles: entry.miles,
+        purpose: entry.purpose || ''
+      });
+      showNotification('Mileage entry updated successfully');
+      await loadData();
+    } catch (err) {
+      showNotification(err.message || 'Failed to update mileage entry', 'error');
       throw err;
     }
   };
@@ -135,6 +171,22 @@ const App = () => {
     }
   };
 
+  const handleEditExpense = async (entry) => {
+    try {
+      await updateExpenseEntry(entry.id, {
+        date: formatDateDisplay(entry.date),
+        amount: entry.amount,
+        category: entry.category,
+        description: entry.description || ''
+      });
+      showNotification('Expense entry updated successfully');
+      await loadData();
+    } catch (err) {
+      showNotification(err.message || 'Failed to update expense entry', 'error');
+      throw err;
+    }
+  };
+
   const handleDeleteExpense = async (entry) => {
     try {
       await deleteExpenseEntry(entry.id);
@@ -157,6 +209,21 @@ const App = () => {
       await loadData();
     } catch (err) {
       showNotification(err.message || 'Failed to add note', 'error');
+      throw err;
+    }
+  };
+
+  const handleEditNote = async (entry) => {
+    try {
+      await updateNotesEntry(entry.id, {
+        date: formatDateDisplay(entry.date),
+        category: entry.category,
+        note: entry.note
+      });
+      showNotification('Note updated successfully');
+      await loadData();
+    } catch (err) {
+      showNotification(err.message || 'Failed to update note', 'error');
       throw err;
     }
   };
@@ -204,6 +271,7 @@ const App = () => {
           <HoursPage
             data={data.hours}
             onAdd={handleAddHours}
+            onEdit={handleEditHours}
             onDelete={handleDeleteHours}
           />
         );
@@ -212,6 +280,7 @@ const App = () => {
           <MileagePage
             data={data.mileage}
             onAdd={handleAddMileage}
+            onEdit={handleEditMileage}
             onDelete={handleDeleteMileage}
           />
         );
@@ -220,6 +289,7 @@ const App = () => {
           <ExpensesPage
             data={data.expenses}
             onAdd={handleAddExpense}
+            onEdit={handleEditExpense}
             onDelete={handleDeleteExpense}
           />
         );
@@ -228,6 +298,7 @@ const App = () => {
           <NotesPage
             data={data.notes}
             onAdd={handleAddNote}
+            onEdit={handleEditNote}
             onDelete={handleDeleteNote}
           />
         );

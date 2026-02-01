@@ -7,6 +7,23 @@
     background-color: $gray-50;
     color: $text-primary;
     white-space: nowrap;
+
+    .MuiTableSortLabel-root {
+      color: $text-primary;
+      font-weight: 600;
+
+      &:hover {
+        color: $primary-color;
+      }
+
+      &.Mui-active {
+        color: $primary-color;
+
+        .MuiTableSortLabel-icon {
+          color: $primary-color;
+        }
+      }
+    }
   }
 
   &__row {

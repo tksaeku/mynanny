@@ -9,7 +9,8 @@
     "preview": "vite preview",
     "test": "vitest",
     "test:run": "vitest run",
-    "lint": "eslint src --ext .js,.jsx"
+    "lint": "eslint src --ext .js,.jsx",
+    "deploy": "npm run build && rsync -avz --delete dist/ emiko@iad1-shared-b8-16.dreamhost.com:~/nanny.teamsunada.com/"
   },
   "dependencies": {
     "@emotion/react": "^11.11.3",

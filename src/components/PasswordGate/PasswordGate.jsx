@@ -3,15 +3,15 @@ import { Paper, TextField, Button, Typography, Alert } from '@mui/material';
 import LockIcon from '@mui/icons-material/Lock';
 import './PasswordGate.scss';
 
-const STORAGE_KEY = 'mynanny_auth';
-const PASSWORD_HASH = 'EmikoSunada2026';
+const STORAGE_KEY = import.meta.env.VITE_STORAGE_KEY;
+const PASSWORD = import.meta.env.VITE_PASSWORD;
 
 export const isAuthenticated = () => {
-  return localStorage.getItem(STORAGE_KEY) === PASSWORD_HASH;
+  return localStorage.getItem(STORAGE_KEY) === PASSWORD;
 };
 
 export const setAuthenticated = () => {
-  localStorage.setItem(STORAGE_KEY, PASSWORD_HASH);
+  localStorage.setItem(STORAGE_KEY, PASSWORD);
 };
 
 export const clearAuthentication = () => {
@@ -24,7 +24,7 @@ const PasswordGate = ({ onSuccess }) => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (password === PASSWORD_HASH) {
+    if (password === PASSWORD) {
       setAuthenticated();
       onSuccess();
     } else {
