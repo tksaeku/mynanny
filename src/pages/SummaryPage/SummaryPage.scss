@@ -1,0 +1,90 @@
+.summary-page {
+  &__cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: $spacing-md;
+    margin-bottom: $spacing-lg;
+
+    @include mobile {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  &__total {
+    @include flex-between;
+    padding: $spacing-lg;
+    margin-bottom: $spacing-lg;
+    background: linear-gradient(135deg, $primary-color 0%, $primary-dark 100%);
+    color: white;
+    border-radius: $border-radius-lg;
+  }
+
+  &__total-amount {
+    font-weight: 700;
+  }
+
+  &__entries {
+    margin-top: $spacing-lg;
+  }
+
+  &__entries-title {
+    font-weight: 600;
+    margin-bottom: $spacing-md;
+    color: $text-primary;
+  }
+}
+
+// Summary Card
+.summary-card {
+  padding: $spacing-md;
+  border-radius: $border-radius-md;
+
+  &__header {
+    @include flex-center;
+    justify-content: flex-start;
+    gap: $spacing-sm;
+    margin-bottom: $spacing-md;
+  }
+
+  &__icon {
+    font-size: 24px;
+
+    &--hours {
+      color: $primary-color;
+    }
+
+    &--mileage {
+      color: $secondary-color;
+    }
+
+    &--expenses {
+      color: $warning-color;
+    }
+  }
+
+  &__content {
+    @include flex-column;
+    gap: $spacing-sm;
+  }
+
+  &__row {
+    @include flex-between;
+    font-size: $font-size-sm;
+    color: $text-secondary;
+
+    &--total {
+      font-weight: 600;
+      color: $text-primary;
+      padding-top: $spacing-sm;
+    }
+  }
+
+  &__value {
+    font-weight: 500;
+    color: $text-primary;
+  }
+
+  .MuiDivider-root {
+    margin: $spacing-sm 0;
+  }
+}

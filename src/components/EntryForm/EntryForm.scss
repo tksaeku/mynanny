@@ -1,0 +1,12 @@
+.entry-form {
+  @include flex-column;
+  gap: $spacing-md;
+
+  .MuiTextField-root {
+    margin-bottom: 0;
+  }
+
+  .MuiInputAdornment-root {
+    color: $text-secondary;
+  }
+}

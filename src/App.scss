@@ -1,0 +1,140 @@
+// Main app styles
+
+.app {
+  min-height: 100vh;
+  background-color: $background-gray;
+  font-family: $font-family;
+  color: $text-primary;
+}
+
+.app-header {
+  background-color: $primary-color;
+  color: white;
+  padding: $spacing-md $spacing-lg;
+  box-shadow: $shadow-md;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+
+  @include mobile {
+    padding: $spacing-sm $spacing-md;
+  }
+
+  h1 {
+    margin: 0;
+    font-size: $font-size-xl;
+    font-weight: 600;
+
+    @include mobile {
+      font-size: $font-size-lg;
+    }
+  }
+}
+
+.app-content {
+  max-width: $container-max-width;
+  margin: 0 auto;
+  padding: $spacing-lg;
+
+  @include mobile {
+    padding: $spacing-md;
+  }
+}
+
+.page-container {
+  @include card;
+  margin-top: $spacing-md;
+}
+
+// Loading state
+.loading-container {
+  @include flex-center;
+  min-height: 200px;
+  color: $text-secondary;
+}
+
+// Error state
+.error-container {
+  @include flex-center;
+  flex-direction: column;
+  gap: $spacing-md;
+  padding: $spacing-xl;
+  color: $error-color;
+  text-align: center;
+
+  .error-icon {
+    font-size: 48px;
+  }
+}
+
+// Empty state
+.empty-state {
+  @include flex-center;
+  flex-direction: column;
+  gap: $spacing-md;
+  padding: $spacing-2xl;
+  color: $text-secondary;
+  text-align: center;
+
+  .empty-icon {
+    font-size: 64px;
+    opacity: 0.5;
+  }
+
+  h3 {
+    margin: 0;
+    color: $text-primary;
+  }
+
+  p {
+    margin: 0;
+  }
+}
+
+// Utility classes
+.mt-sm { margin-top: $spacing-sm; }
+.mt-md { margin-top: $spacing-md; }
+.mt-lg { margin-top: $spacing-lg; }
+
+.mb-sm { margin-bottom: $spacing-sm; }
+.mb-md { margin-bottom: $spacing-md; }
+.mb-lg { margin-bottom: $spacing-lg; }
+
+.text-center { text-align: center; }
+.text-right { text-align: right; }
+
+.text-success { color: $success-color; }
+.text-error { color: $error-color; }
+.text-secondary { color: $text-secondary; }
+
+// Currency formatting
+.currency {
+  font-weight: 500;
+
+  &.positive {
+    color: $success-color;
+  }
+
+  &.negative {
+    color: $error-color;
+  }
+}
+
+// Total row styling (for tables)
+.total-row {
+  font-weight: 600;
+  background-color: $gray-50;
+}
+
+// Fab button positioning
+.fab-container {
+  position: fixed;
+  bottom: $spacing-lg;
+  right: $spacing-lg;
+  z-index: 50;
+
+  @include mobile {
+    bottom: $spacing-md;
+    right: $spacing-md;
+  }
+}
