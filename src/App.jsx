@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { CircularProgress, Alert, Snackbar } from '@mui/material';
 import TabNavigation from './components/TabNavigation';
+import PasswordGate, { isAuthenticated } from './components/PasswordGate';
 import SummaryPage from './pages/SummaryPage';
 import HoursPage from './pages/HoursPage';
 import MileagePage from './pages/MileagePage';
@@ -22,6 +23,7 @@ import { calculateTotalHours } from './utils/calculations';
 import './App.scss';
 
 const App = () => {
+  const [authenticated, setAuthenticated] = useState(isAuthenticated());
   const [activeTab, setActiveTab] = useState('summary');
   const [data, setData] = useState({
     hours: [],
@@ -49,8 +51,10 @@ const App = () => {
   }, []);
 
   useEffect(() => {
-    loadData();
-  }, [loadData]);
+    if (authenticated) {
+      loadData();
+    }
+  }, [loadData, authenticated]);
 
   const showNotification = (message, severity = 'success') => {
     setNotification({ open: true, message, severity });
@@ -231,6 +235,10 @@ const App = () => {
         return null;
     }
   };
+
+  if (!authenticated) {
+    return <PasswordGate onSuccess={() => setAuthenticated(true)} />;
+  }
 
   return (
     <div className="app">

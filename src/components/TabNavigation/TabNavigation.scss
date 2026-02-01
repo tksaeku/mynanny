@@ -3,6 +3,13 @@
   border-radius: $border-radius-md;
   overflow: hidden;
 
+  &--mobile {
+    display: flex;
+    align-items: center;
+    padding: $spacing-sm $spacing-md;
+    gap: $spacing-sm;
+  }
+
   &__tabs {
     background-color: $background-paper;
 
@@ -18,17 +25,52 @@
     font-weight: 500;
     font-size: $font-size-sm;
 
-    @include mobile {
-      min-width: auto;
-      padding: $spacing-sm $spacing-md;
-
-      .MuiTab-iconWrapper {
-        margin-right: $spacing-xs;
-      }
-    }
-
     &.Mui-selected {
       font-weight: 600;
     }
+  }
+
+  &__menu-btn {
+    color: $primary-color;
+  }
+
+  &__current {
+    font-weight: 600;
+    color: $text-primary;
+  }
+
+  &__drawer {
+    width: 250px;
+    padding-top: $spacing-md;
+  }
+
+  &__drawer-title {
+    padding: $spacing-md $spacing-lg;
+    font-weight: 600;
+    color: $primary-color;
+    border-bottom: 1px solid $gray-200;
+    margin-bottom: $spacing-sm;
+  }
+
+  .MuiListItemButton-root {
+    padding: $spacing-md $spacing-lg;
+
+    &.Mui-selected {
+      background-color: rgba($primary-color, 0.08);
+
+      .MuiListItemIcon-root {
+        color: $primary-color;
+      }
+
+      .MuiListItemText-primary {
+        font-weight: 600;
+        color: $primary-color;
+      }
+    }
+  }
+
+  .MuiListItemIcon-root {
+    min-width: 40px;
+    color: $gray-600;
   }
 }
