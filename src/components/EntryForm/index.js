@@ -1,1 +1,1 @@
-export { default, FORM_TYPES } from './EntryForm';
+export { default } from './EntryForm';

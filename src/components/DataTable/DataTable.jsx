@@ -9,7 +9,8 @@ import {
   TableSortLabel,
   Paper,
   IconButton,
-  Tooltip
+  Tooltip,
+  CircularProgress
 } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -25,6 +26,16 @@ const DataTable = ({
   defaultSort = { column: null, direction: 'desc' }
 }) => {
   const [sortConfig, setSortConfig] = useState(defaultSort);
+  const [deletingRowId, setDeletingRowId] = useState(null);
+
+  const handleDelete = async (row) => {
+    setDeletingRowId(row.id);
+    try {
+      await onDelete(row);
+    } finally {
+      setDeletingRowId(null);
+    }
+  };
 
   const handleSort = (columnId) => {
     setSortConfig((prev) => ({
@@ -128,15 +139,19 @@ const DataTable = ({
                     </Tooltip>
                   )}
                   {onDelete && (
-                    <Tooltip title="Delete">
-                      <IconButton
-                        size="small"
-                        onClick={() => onDelete(row)}
-                        className="data-table__action-btn data-table__action-btn--delete"
-                      >
-                        <DeleteIcon fontSize="small" />
-                      </IconButton>
-                    </Tooltip>
+                    deletingRowId === row.id ? (
+                      <CircularProgress size={20} sx={{ mx: '5px', verticalAlign: 'middle' }} />
+                    ) : (
+                      <Tooltip title="Delete">
+                        <IconButton
+                          size="small"
+                          onClick={() => handleDelete(row)}
+                          className="data-table__action-btn data-table__action-btn--delete"
+                        >
+                          <DeleteIcon fontSize="small" />
+                        </IconButton>
+                      </Tooltip>
+                    )
                   )}
                 </TableCell>
               )}

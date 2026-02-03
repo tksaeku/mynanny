@@ -1,1 +1,1 @@
-export { default, VIEW_MODES } from './ViewToggle';
+export { default } from './ViewToggle';
