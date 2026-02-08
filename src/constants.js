@@ -1,5 +1,6 @@
 export const VIEW_MODES = {
   WEEKLY: 'weekly',
+  BIWEEKLY: 'biweekly',
   MONTHLY: 'monthly',
   HISTORICAL: 'historical'
 };
@@ -8,7 +9,8 @@ export const FORM_TYPES = {
   HOURS: 'hours',
   MILEAGE: 'mileage',
   EXPENSES: 'expenses',
-  NOTES: 'notes'
+  NOTES: 'notes',
+  PTO: 'pto'
 };
 
 export const EXPENSE_CATEGORIES = [

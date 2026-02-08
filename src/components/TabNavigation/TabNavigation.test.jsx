@@ -11,7 +11,7 @@ describe('TabNavigation', () => {
   it('renders all tabs', () => {
     render(<TabNavigation {...defaultProps} />);
 
-    expect(screen.getByRole('tab', { name: /summary/i })).toBeInTheDocument();
+    expect(screen.getByRole('tab', { name: /home/i })).toBeInTheDocument();
     expect(screen.getByRole('tab', { name: /hours/i })).toBeInTheDocument();
     expect(screen.getByRole('tab', { name: /mileage/i })).toBeInTheDocument();
     expect(screen.getByRole('tab', { name: /expenses/i })).toBeInTheDocument();

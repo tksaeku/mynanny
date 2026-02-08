@@ -177,6 +177,108 @@ describe('calculations', () => {
       expect(result.hours.regularPay).toBe(250); // 10 * 25
       expect(result.mileage.reimbursement).toBe(5); // 10 * 0.50
     });
+
+    it('returns empty withholdings when none provided', () => {
+      const result = calculatePeriodSummary({});
+      expect(result.withholdings.items).toEqual([]);
+      expect(result.withholdings.totalWithholdings).toBe(0);
+      expect(result.withholdings.grossTaxableIncome).toBe(0);
+      expect(result.withholdings.totalReimbursements).toBe(0);
+    });
+
+    it('backward compatible - no withholdings means same grandTotal', () => {
+      const data = {
+        hoursEntries: [{ regularHours: 8, overtimeHours: 1 }],
+        mileageEntries: [{ miles: 20 }],
+        expenseEntries: [{ amount: 25 }]
+      };
+
+      const result = calculatePeriodSummary(data);
+      // hoursPay: 8*21 + 1*25 = 193, mileage: 20*0.67 = 13.40, expenses: 25
+      expect(result.grandTotal).toBeCloseTo(231.40);
+    });
+
+    it('calculates withholdings on hours-based income only', () => {
+      const data = {
+        hoursEntries: [{ regularHours: 10, overtimeHours: 0 }],
+        mileageEntries: [{ miles: 100 }],
+        expenseEntries: [{ amount: 50 }],
+        ptoEntries: []
+      };
+      const rates = {
+        regularHourlyRate: 20,
+        overtimeRate: 30,
+        mileageRate: 0.50
+      };
+      const withholdings = [
+        { name: 'Social Security', percentage: 10 }
+      ];
+
+      const result = calculatePeriodSummary(data, rates, withholdings);
+
+      // grossTaxableIncome = 200 (hours) + 0 (pto) = 200
+      expect(result.withholdings.grossTaxableIncome).toBe(200);
+      // withholding = 200 * 10% = 20
+      expect(result.withholdings.items[0].amount).toBe(20);
+      expect(result.withholdings.totalWithholdings).toBe(20);
+      // reimbursements = 50 (mileage) + 50 (expenses) = 100
+      expect(result.withholdings.totalReimbursements).toBe(100);
+      // grandTotal = 200 - 20 + 100 = 280
+      expect(result.grandTotal).toBe(280);
+    });
+
+    it('includes PTO pay in gross taxable income for withholdings', () => {
+      const data = {
+        hoursEntries: [{ regularHours: 10, overtimeHours: 0 }],
+        mileageEntries: [],
+        expenseEntries: [],
+        ptoEntries: [{ hours: 5 }]
+      };
+      const rates = {
+        regularHourlyRate: 20,
+        overtimeRate: 30,
+        mileageRate: 0.50
+      };
+      const withholdings = [
+        { name: 'Tax', percentage: 10 }
+      ];
+
+      const result = calculatePeriodSummary(data, rates, withholdings);
+
+      // grossTaxableIncome = 200 (hours) + 100 (5h PTO * $20) = 300
+      expect(result.withholdings.grossTaxableIncome).toBe(300);
+      // withholding = 300 * 10% = 30
+      expect(result.withholdings.totalWithholdings).toBe(30);
+      // grandTotal = 300 - 30 + 0 = 270
+      expect(result.grandTotal).toBe(270);
+    });
+
+    it('handles multiple withholdings', () => {
+      const data = {
+        hoursEntries: [{ regularHours: 100, overtimeHours: 0 }],
+        mileageEntries: [],
+        expenseEntries: []
+      };
+      const rates = {
+        regularHourlyRate: 10,
+        overtimeRate: 15,
+        mileageRate: 0.50
+      };
+      const withholdings = [
+        { name: 'Social Security', percentage: 6.20 },
+        { name: 'Medicare', percentage: 1.45 }
+      ];
+
+      const result = calculatePeriodSummary(data, rates, withholdings);
+
+      // grossTaxableIncome = 1000
+      expect(result.withholdings.grossTaxableIncome).toBe(1000);
+      expect(result.withholdings.items[0].amount).toBe(62); // 1000 * 6.20%
+      expect(result.withholdings.items[1].amount).toBeCloseTo(14.50); // 1000 * 1.45%
+      expect(result.withholdings.totalWithholdings).toBeCloseTo(76.50);
+      // grandTotal = 1000 - 76.50 + 0 = 923.50
+      expect(result.grandTotal).toBeCloseTo(923.50);
+    });
   });
 
   describe('formatCurrency', () => {

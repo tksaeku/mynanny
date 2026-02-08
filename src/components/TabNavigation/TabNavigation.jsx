@@ -20,14 +20,16 @@ import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import DirectionsCarIcon from '@mui/icons-material/DirectionsCar';
 import ReceiptIcon from '@mui/icons-material/Receipt';
 import NotesIcon from '@mui/icons-material/Notes';
+import BeachAccessIcon from '@mui/icons-material/BeachAccess';
 import './TabNavigation.scss';
 
 const tabs = [
-  { id: 'summary', label: 'Summary', icon: <HomeIcon /> },
+  { id: 'summary', label: 'Home', icon: <HomeIcon /> },
   { id: 'hours', label: 'Hours', icon: <AccessTimeIcon /> },
   { id: 'mileage', label: 'Mileage', icon: <DirectionsCarIcon /> },
   { id: 'expenses', label: 'Expenses', icon: <ReceiptIcon /> },
-  { id: 'notes', label: 'Notes', icon: <NotesIcon /> }
+  { id: 'notes', label: 'Notes', icon: <NotesIcon /> },
+  { id: 'pto', label: 'PTO', icon: <BeachAccessIcon /> }
 ];
 
 const TabNavigation = ({ activeTab, onTabChange }) => {

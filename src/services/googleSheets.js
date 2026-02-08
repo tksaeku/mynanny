@@ -14,7 +14,10 @@ export const SHEET_TABS = {
   MILEAGE: 'Mileage',
   EXPENSES: 'Expenses',
   NOTES: 'Notes',
-  CONFIG: 'Config'
+  PTO: 'PTO',
+  CONFIG: 'Config',
+  WITHHOLDINGS: 'Withholdings',
+  EMPLOYER: 'Employer'
 };
 
 /**
@@ -102,6 +105,54 @@ const parseNotesEntries = (rows) => {
 };
 
 /**
+ * Parse PTO entries from sheet data
+ * @param {Array<Array<string>>} rows
+ * @returns {Array<object>}
+ */
+const parsePTOEntries = (rows) => {
+  if (rows.length <= 1) return [];
+
+  return rows.slice(1).map((row, index) => ({
+    id: index + 2,
+    date: row[0] || '',
+    hours: parseFloat(row[1]) || 0,
+    note: row[2] || ''
+  }));
+};
+
+/**
+ * Parse withholdings from sheet data
+ * @param {Array<Array<string>>} rows
+ * @returns {Array<{ name: string, percentage: number }>}
+ */
+const parseWithholdings = (rows) => {
+  if (rows.length <= 1) return [];
+
+  return rows.slice(1)
+    .map((row) => ({
+      name: row[0] || '',
+      percentage: parseFloat(row[1]) || 0
+    }))
+    .filter((item) => item.name && item.percentage > 0);
+};
+
+/**
+ * Parse employer info from sheet data
+ * @param {Array<Array<string>>} rows
+ * @returns {Array<{ label: string, value: string }>}
+ */
+const parseEmployer = (rows) => {
+  if (rows.length <= 1) return [];
+
+  return rows.slice(1)
+    .map((row) => ({
+      label: row[0] || '',
+      value: row[1] || ''
+    }))
+    .filter((item) => item.label);
+};
+
+/**
  * Parse config from sheet data
  * @param {Array<Array<string>>} rows
  * @returns {object}
@@ -122,7 +173,8 @@ const parseConfig = (rows) => {
   return {
     regularHourlyRate: parseFloat(config['Regular Hourly Rate']) || 21,
     overtimeRate: parseFloat(config['Overtime Rate']) || 25,
-    mileageRate: parseFloat(config['Mileage Rate']) || 0.67
+    mileageRate: parseFloat(config['Mileage Rate']) || 0.67,
+    ptoAccrualHours: parseFloat(config['PTO Accrual Hours']) || 40
   };
 };
 
@@ -163,6 +215,15 @@ export const fetchNotes = async () => {
 };
 
 /**
+ * Fetch all PTO entries
+ * @returns {Promise<Array<object>>}
+ */
+export const fetchPTO = async () => {
+  const rows = await fetchSheetData(SHEET_TABS.PTO);
+  return parsePTOEntries(rows);
+};
+
+/**
  * Fetch configuration
  * @returns {Promise<object>}
  */
@@ -172,19 +233,48 @@ export const fetchConfig = async () => {
 };
 
 /**
+ * Fetch withholdings configuration
+ * @returns {Promise<Array<{ name: string, percentage: number }>>}
+ */
+export const fetchWithholdings = async () => {
+  try {
+    const rows = await fetchSheetData(SHEET_TABS.WITHHOLDINGS);
+    return parseWithholdings(rows);
+  } catch {
+    return [];
+  }
+};
+
+/**
+ * Fetch employer information
+ * @returns {Promise<Array<{ label: string, value: string }>>}
+ */
+export const fetchEmployer = async () => {
+  try {
+    const rows = await fetchSheetData(SHEET_TABS.EMPLOYER);
+    return parseEmployer(rows);
+  } catch {
+    return [];
+  }
+};
+
+/**
  * Fetch all data from all sheets
  * @returns {Promise<object>}
  */
 export const fetchAllData = async () => {
-  const [hours, mileage, expenses, notes, config] = await Promise.all([
+  const [hours, mileage, expenses, notes, pto, config, withholdings, employer] = await Promise.all([
     fetchHours(),
     fetchMileage(),
     fetchExpenses(),
     fetchNotes(),
-    fetchConfig()
+    fetchPTO(),
+    fetchConfig(),
+    fetchWithholdings(),
+    fetchEmployer()
   ]);
 
-  return { hours, mileage, expenses, notes, config };
+  return { hours, mileage, expenses, notes, pto, config, withholdings, employer };
 };
 
 /**
@@ -363,3 +453,25 @@ export const deleteExpenseEntry = (rowNumber) => deleteEntry(SHEET_TABS.EXPENSES
  * @returns {Promise<object>}
  */
 export const deleteNotesEntry = (rowNumber) => deleteEntry(SHEET_TABS.NOTES, rowNumber);
+
+/**
+ * Add PTO entry
+ * @param {object} entry
+ * @returns {Promise<object>}
+ */
+export const addPTOEntry = (entry) => addEntry(SHEET_TABS.PTO, entry);
+
+/**
+ * Update PTO entry
+ * @param {number} rowNumber
+ * @param {object} entry
+ * @returns {Promise<object>}
+ */
+export const updatePTOEntry = (rowNumber, entry) => updateEntry(SHEET_TABS.PTO, rowNumber, entry);
+
+/**
+ * Delete PTO entry
+ * @param {number} rowNumber
+ * @returns {Promise<object>}
+ */
+export const deletePTOEntry = (rowNumber) => deleteEntry(SHEET_TABS.PTO, rowNumber);

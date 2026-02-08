@@ -4,6 +4,7 @@ import AddIcon from '@mui/icons-material/Add';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import DirectionsCarIcon from '@mui/icons-material/DirectionsCar';
 import ReceiptIcon from '@mui/icons-material/Receipt';
+import BeachAccessIcon from '@mui/icons-material/BeachAccess';
 import BulkEntryForm from '../../components/BulkEntryForm';
 import ViewToggle from '../../components/ViewToggle';
 import { VIEW_MODES } from '../../constants';
@@ -11,6 +12,11 @@ import DataTable from '../../components/DataTable';
 import {
   getWeekStart,
   getWeekEnd,
+  getBiweeklyStart,
+  getBiweeklyEnd,
+  getBiweeklyRangeLabel,
+  getPreviousBiweek,
+  getNextBiweek,
   getMonthStart,
   getMonthEnd,
   getWeekRangeLabel,
@@ -23,7 +29,7 @@ import {
   formatDateDisplay,
   parseDate
 } from '../../utils/dateUtils';
-import { calculatePeriodSummary, formatCurrency } from '../../utils/calculations';
+import { calculatePeriodSummary, calculatePTOBalance, formatCurrency } from '../../utils/calculations';
 import './SummaryPage.scss';
 
 const SummaryPage = ({
@@ -31,7 +37,9 @@ const SummaryPage = ({
   mileage = [],
   expenses = [],
   notes = [],
+  pto = [],
   config = {},
+  withholdings = [],
   onBulkAdd
 }) => {
   const [viewMode, setViewMode] = useState(VIEW_MODES.WEEKLY);
@@ -46,6 +54,12 @@ const SummaryPage = ({
           start: getWeekStart(currentDate),
           end: getWeekEnd(currentDate),
           label: getWeekRangeLabel(currentDate)
+        };
+      case VIEW_MODES.BIWEEKLY:
+        return {
+          start: getBiweeklyStart(currentDate),
+          end: getBiweeklyEnd(currentDate),
+          label: getBiweeklyRangeLabel(currentDate)
         };
       case VIEW_MODES.MONTHLY:
         return {
@@ -75,23 +89,33 @@ const SummaryPage = ({
   const filteredHours = useMemo(() => filterByDateRange(hours), [hours, dateRange]);
   const filteredMileage = useMemo(() => filterByDateRange(mileage), [mileage, dateRange]);
   const filteredExpenses = useMemo(() => filterByDateRange(expenses), [expenses, dateRange]);
+  const filteredPTO = useMemo(() => filterByDateRange(pto), [pto, dateRange]);
 
-  // Calculate summary
+  // Calculate summary (includes PTO pay for the period)
   const summary = useMemo(() => {
     return calculatePeriodSummary(
       {
         hoursEntries: filteredHours,
         mileageEntries: filteredMileage,
-        expenseEntries: filteredExpenses
+        expenseEntries: filteredExpenses,
+        ptoEntries: filteredPTO
       },
-      config
+      config,
+      withholdings
     );
-  }, [filteredHours, filteredMileage, filteredExpenses, config]);
+  }, [filteredHours, filteredMileage, filteredExpenses, filteredPTO, config, withholdings]);
+
+  // PTO balance is always all-time
+  const ptoBalance = useMemo(() => {
+    return calculatePTOBalance(hours, pto, config.ptoAccrualHours);
+  }, [hours, pto, config.ptoAccrualHours]);
 
   // Navigation handlers
   const handlePrevious = () => {
     if (viewMode === VIEW_MODES.WEEKLY) {
       setCurrentDate(getPreviousWeek(currentDate));
+    } else if (viewMode === VIEW_MODES.BIWEEKLY) {
+      setCurrentDate(getPreviousBiweek(currentDate));
     } else if (viewMode === VIEW_MODES.MONTHLY) {
       setCurrentDate(getPreviousMonth(currentDate));
     }
@@ -100,6 +124,8 @@ const SummaryPage = ({
   const handleNext = () => {
     if (viewMode === VIEW_MODES.WEEKLY) {
       setCurrentDate(getNextWeek(currentDate));
+    } else if (viewMode === VIEW_MODES.BIWEEKLY) {
+      setCurrentDate(getNextBiweek(currentDate));
     } else if (viewMode === VIEW_MODES.MONTHLY) {
       setCurrentDate(getNextMonth(currentDate));
     }
@@ -145,9 +171,19 @@ const SummaryPage = ({
       });
     });
 
+    filteredPTO.forEach((entry) => {
+      entries.push({
+        id: `pto-${entry.id}`,
+        type: 'PTO',
+        date: entry.date,
+        description: `${entry.hours}h PTO${entry.note ? ` - ${entry.note}` : ''}`,
+        amount: entry.hours * (config.regularHourlyRate || 21)
+      });
+    });
+
     // Sort by date descending
     return entries.sort((a, b) => new Date(b.date) - new Date(a.date));
-  }, [filteredHours, filteredMileage, filteredExpenses, config]);
+  }, [filteredHours, filteredMileage, filteredExpenses, filteredPTO, config]);
 
   const getTypeColor = (type) => {
     switch (type) {
@@ -157,6 +193,8 @@ const SummaryPage = ({
         return 'secondary';
       case 'Expense':
         return 'warning';
+      case 'PTO':
+        return 'info';
       default:
         return 'default';
     }
@@ -248,6 +286,34 @@ const SummaryPage = ({
             </div>
           </div>
         </Paper>
+
+        <Paper className="summary-card">
+          <div className="summary-card__header">
+            <BeachAccessIcon className="summary-card__icon summary-card__icon--pto" />
+            <Typography variant="subtitle2">PTO</Typography>
+          </div>
+          <div className="summary-card__content">
+            {summary.pto.totalHours > 0 && (
+              <div className="summary-card__row">
+                <span>{summary.pto.totalHours}h × {formatCurrency(config.regularHourlyRate || 21)}</span>
+                <span className="summary-card__value">{formatCurrency(summary.pto.totalPay)}</span>
+              </div>
+            )}
+            <div className="summary-card__row">
+              <span>Accrued</span>
+              <span className="summary-card__value">{ptoBalance.accrued}h</span>
+            </div>
+            <div className="summary-card__row">
+              <span>Used</span>
+              <span className="summary-card__value">{ptoBalance.used}h</span>
+            </div>
+            <Divider />
+            <div className="summary-card__row summary-card__row--total">
+              <span>Available</span>
+              <span className="summary-card__value">{ptoBalance.available}h</span>
+            </div>
+          </div>
+        </Paper>
       </div>
 
       {/* Grand Total */}
@@ -286,6 +352,7 @@ const SummaryPage = ({
         onClose={() => setBulkFormOpen(false)}
         onBulkAdd={onBulkAdd}
       />
+
     </div>
   );
 };

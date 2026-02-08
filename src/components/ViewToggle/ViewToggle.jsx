@@ -30,6 +30,7 @@ const ViewToggle = ({
         className="view-toggle__buttons"
       >
         <ToggleButton value={VIEW_MODES.WEEKLY}>Weekly</ToggleButton>
+        <ToggleButton value={VIEW_MODES.BIWEEKLY}>Bi-weekly</ToggleButton>
         <ToggleButton value={VIEW_MODES.MONTHLY}>Monthly</ToggleButton>
         <ToggleButton value={VIEW_MODES.HISTORICAL}>All Time</ToggleButton>
       </ToggleButtonGroup>

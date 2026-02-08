@@ -6,6 +6,8 @@ import {
   fetchExpenses,
   fetchNotes,
   fetchConfig,
+  fetchWithholdings,
+  fetchEmployer,
   fetchAllData
 } from './googleSheets';
 
@@ -25,6 +27,7 @@ describe('googleSheets service', () => {
       expect(SHEET_TABS.EXPENSES).toBe('Expenses');
       expect(SHEET_TABS.NOTES).toBe('Notes');
       expect(SHEET_TABS.CONFIG).toBe('Config');
+      expect(SHEET_TABS.EMPLOYER).toBe('Employer');
     });
   });
 
@@ -169,7 +172,8 @@ describe('googleSheets service', () => {
       expect(result).toEqual({
         regularHourlyRate: 22,
         overtimeRate: 30,
-        mileageRate: 0.70
+        mileageRate: 0.70,
+        ptoAccrualHours: 40
       });
     });
 
@@ -184,8 +188,133 @@ describe('googleSheets service', () => {
       expect(result).toEqual({
         regularHourlyRate: 21,
         overtimeRate: 25,
-        mileageRate: 0.67
+        mileageRate: 0.67,
+        ptoAccrualHours: 40
       });
+    });
+  });
+
+  describe('fetchWithholdings', () => {
+    it('parses withholdings data correctly', async () => {
+      mockFetch.mockResolvedValue({
+        ok: true,
+        json: () => Promise.resolve({
+          values: [
+            ['Name', 'Percentage'],
+            ['Social Security', '6.20'],
+            ['Medicare', '1.45']
+          ]
+        })
+      });
+
+      const result = await fetchWithholdings();
+
+      expect(result).toHaveLength(2);
+      expect(result[0]).toEqual({
+        name: 'Social Security',
+        percentage: 6.20
+      });
+      expect(result[1]).toEqual({
+        name: 'Medicare',
+        percentage: 1.45
+      });
+    });
+
+    it('filters out 0% withholdings', async () => {
+      mockFetch.mockResolvedValue({
+        ok: true,
+        json: () => Promise.resolve({
+          values: [
+            ['Name', 'Percentage'],
+            ['Social Security', '6.20'],
+            ['WA Unemployment', '0.00']
+          ]
+        })
+      });
+
+      const result = await fetchWithholdings();
+
+      expect(result).toHaveLength(1);
+      expect(result[0].name).toBe('Social Security');
+    });
+
+    it('filters out empty names', async () => {
+      mockFetch.mockResolvedValue({
+        ok: true,
+        json: () => Promise.resolve({
+          values: [
+            ['Name', 'Percentage'],
+            ['', '5.00'],
+            ['Medicare', '1.45']
+          ]
+        })
+      });
+
+      const result = await fetchWithholdings();
+
+      expect(result).toHaveLength(1);
+      expect(result[0].name).toBe('Medicare');
+    });
+
+    it('returns empty array on fetch failure (graceful degradation)', async () => {
+      mockFetch.mockResolvedValue({
+        ok: false,
+        statusText: 'Not Found'
+      });
+
+      const result = await fetchWithholdings();
+      expect(result).toEqual([]);
+    });
+  });
+
+  describe('fetchEmployer', () => {
+    it('parses employer data correctly', async () => {
+      mockFetch.mockResolvedValue({
+        ok: true,
+        json: () => Promise.resolve({
+          values: [
+            ['Label', 'Value'],
+            ['Employer Name', 'Acme Corp'],
+            ['EIN', '12-3456789'],
+            ['Address', '456 Business Ave']
+          ]
+        })
+      });
+
+      const result = await fetchEmployer();
+
+      expect(result).toHaveLength(3);
+      expect(result[0]).toEqual({ label: 'Employer Name', value: 'Acme Corp' });
+      expect(result[1]).toEqual({ label: 'EIN', value: '12-3456789' });
+      expect(result[2]).toEqual({ label: 'Address', value: '456 Business Ave' });
+    });
+
+    it('filters out rows with empty labels', async () => {
+      mockFetch.mockResolvedValue({
+        ok: true,
+        json: () => Promise.resolve({
+          values: [
+            ['Label', 'Value'],
+            ['', 'Some Value'],
+            ['Employer Name', 'Acme Corp']
+          ]
+        })
+      });
+
+      const result = await fetchEmployer();
+
+      expect(result).toHaveLength(1);
+      expect(result[0].label).toBe('Employer Name');
+    });
+
+    it('returns empty array on fetch failure (graceful degradation)', async () => {
+      mockFetch.mockResolvedValue({
+        ok: false,
+        statusText: 'Not Found'
+      });
+
+      const result = await fetchEmployer();
+      expect(result).toEqual([]);
     });
   });
 
@@ -202,8 +331,11 @@ describe('googleSheets service', () => {
       expect(result).toHaveProperty('mileage');
       expect(result).toHaveProperty('expenses');
       expect(result).toHaveProperty('notes');
+      expect(result).toHaveProperty('pto');
       expect(result).toHaveProperty('config');
-      expect(mockFetch).toHaveBeenCalledTimes(5);
+      expect(result).toHaveProperty('withholdings');
+      expect(result).toHaveProperty('employer');
+      expect(mockFetch).toHaveBeenCalledTimes(8);
     });
   });
 

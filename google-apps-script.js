@@ -19,12 +19,15 @@
  * Mileage: Date | Miles | Purpose
  * Expenses: Date | Amount | Category | Description
  * Notes: Date | Category | Note
+ * PTO: Date | Hours | Note
  * Config: Setting | Value
+ * Withholdings: Name | Percentage
  *
  * Config tab should have these rows:
  * Regular Hourly Rate | 21
  * Overtime Rate | 25
  * Mileage Rate | 0.67
+ * PTO Accrual Hours | 40
  */
 
 /**
@@ -121,6 +124,13 @@ function addRow(sheetName, data) {
         data.note
       ];
       break;
+    case 'PTO':
+      rowData = [
+        data.date,
+        data.hours,
+        data.note || ''
+      ];
+      break;
     default:
       throw new Error(`Unknown sheet: ${sheetName}`);
   }
@@ -178,6 +188,13 @@ function updateRow(sheetName, rowNumber, data) {
         data.date,
         data.category,
         data.note
+      ];
+      break;
+    case 'PTO':
+      rowData = [
+        data.date,
+        data.hours,
+        data.note || ''
       ];
       break;
     default:
@@ -249,6 +266,14 @@ function initializeSpreadsheet() {
     notesSheet.getRange(1, 1, 1, 3).setFontWeight('bold');
   }
 
+  // Create PTO sheet
+  let ptoSheet = ss.getSheetByName('PTO');
+  if (!ptoSheet) {
+    ptoSheet = ss.insertSheet('PTO');
+    ptoSheet.appendRow(['Date', 'Hours', 'Note']);
+    ptoSheet.getRange(1, 1, 1, 3).setFontWeight('bold');
+  }
+
   // Create Config sheet
   let configSheet = ss.getSheetByName('Config');
   if (!configSheet) {
@@ -257,7 +282,21 @@ function initializeSpreadsheet() {
     configSheet.appendRow(['Regular Hourly Rate', 21]);
     configSheet.appendRow(['Overtime Rate', 25]);
     configSheet.appendRow(['Mileage Rate', 0.67]);
+    configSheet.appendRow(['PTO Accrual Hours', 40]);
     configSheet.getRange(1, 1, 1, 2).setFontWeight('bold');
+  }
+
+  // Create Withholdings sheet
+  let withholdingsSheet = ss.getSheetByName('Withholdings');
+  if (!withholdingsSheet) {
+    withholdingsSheet = ss.insertSheet('Withholdings');
+    withholdingsSheet.appendRow(['Name', 'Percentage']);
+    withholdingsSheet.appendRow(['Social Security', 6.20]);
+    withholdingsSheet.appendRow(['Medicare', 1.45]);
+    withholdingsSheet.appendRow(['WA Paid Leave (PFML)', 0.81]);
+    withholdingsSheet.appendRow(['WA Cares Fund', 0.58]);
+    withholdingsSheet.appendRow(['WA Unemployment', 0.00]);
+    withholdingsSheet.getRange(1, 1, 1, 2).setFontWeight('bold');
   }
 
   // Remove default Sheet1 if it exists and is empty

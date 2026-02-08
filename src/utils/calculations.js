@@ -86,16 +86,41 @@ export const sumExpenseEntries = (entries) => {
 };
 
 /**
+ * Sum PTO hours from PTO entries
+ * @param {Array<{ hours: number }>} entries
+ * @returns {number}
+ */
+export const sumPTOHours = (entries) => {
+  return entries.reduce((sum, entry) => sum + (entry.hours || 0), 0);
+};
+
+/**
+ * Calculate PTO balance (always all-time)
+ * @param {Array} allHoursEntries - All hours entries ever recorded
+ * @param {Array} allPTOEntries - All PTO entries ever recorded
+ * @param {number} ptoAccrualHours - Hours worked per 1 hour of PTO accrued
+ * @returns {{ accrued: number, used: number, available: number }}
+ */
+export const calculatePTOBalance = (allHoursEntries, allPTOEntries, ptoAccrualHours = 40) => {
+  const { totalHours } = sumHoursEntries(allHoursEntries);
+  const accrued = Math.floor(totalHours / ptoAccrualHours);
+  const used = sumPTOHours(allPTOEntries);
+  const available = accrued - used;
+  return { accrued, used, available };
+};
+
+/**
  * Calculate complete summary for a period
  * @param {object} data
  * @param {Array} data.hoursEntries
  * @param {Array} data.mileageEntries
  * @param {Array} data.expenseEntries
  * @param {object} rates
+ * @param {Array<{ name: string, percentage: number }>} withholdings
  * @returns {object}
  */
-export const calculatePeriodSummary = (data, rates = DEFAULT_RATES) => {
-  const { hoursEntries = [], mileageEntries = [], expenseEntries = [] } = data;
+export const calculatePeriodSummary = (data, rates = DEFAULT_RATES, withholdings = []) => {
+  const { hoursEntries = [], mileageEntries = [], expenseEntries = [], ptoEntries = [] } = data;
 
   // Hours
   const hoursSummary = sumHoursEntries(hoursEntries);
@@ -113,8 +138,22 @@ export const calculatePeriodSummary = (data, rates = DEFAULT_RATES) => {
   // Expenses
   const totalExpenses = sumExpenseEntries(expenseEntries);
 
+  // PTO
+  const totalPTOHours = sumPTOHours(ptoEntries);
+  const ptoPay = totalPTOHours * (rates.regularHourlyRate || DEFAULT_RATES.regularHourlyRate);
+
+  // Withholdings (applied only to hours-based income)
+  const grossTaxableIncome = hoursPay.totalPay + ptoPay;
+  const withholdingItems = withholdings.map((w) => ({
+    name: w.name,
+    percentage: w.percentage,
+    amount: grossTaxableIncome * (w.percentage / 100)
+  }));
+  const totalWithholdings = withholdingItems.reduce((sum, item) => sum + item.amount, 0);
+  const totalReimbursements = mileageReimbursement + totalExpenses;
+
   // Grand total
-  const grandTotal = hoursPay.totalPay + mileageReimbursement + totalExpenses;
+  const grandTotal = grossTaxableIncome - totalWithholdings + totalReimbursements;
 
   return {
     hours: {
@@ -131,6 +170,16 @@ export const calculatePeriodSummary = (data, rates = DEFAULT_RATES) => {
     },
     expenses: {
       total: totalExpenses
+    },
+    pto: {
+      totalHours: totalPTOHours,
+      totalPay: ptoPay
+    },
+    withholdings: {
+      grossTaxableIncome,
+      items: withholdingItems,
+      totalWithholdings,
+      totalReimbursements
     },
     grandTotal
   };

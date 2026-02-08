@@ -20,7 +20,8 @@ const TYPE_OPTIONS = [
   { value: FORM_TYPES.HOURS, label: 'Hours' },
   { value: FORM_TYPES.MILEAGE, label: 'Mileage' },
   { value: FORM_TYPES.EXPENSES, label: 'Expense' },
-  { value: FORM_TYPES.NOTES, label: 'Note' }
+  { value: FORM_TYPES.NOTES, label: 'Note' },
+  { value: FORM_TYPES.PTO, label: 'PTO' }
 ];
 
 const createEmptyRow = (type = FORM_TYPES.HOURS) => ({
@@ -38,7 +39,9 @@ const createEmptyRow = (type = FORM_TYPES.HOURS) => ({
   category: '',
   description: '',
   // Notes fields
-  note: ''
+  note: '',
+  // PTO fields
+  hours: ''
 });
 
 const BulkEntryForm = ({
@@ -110,6 +113,9 @@ const BulkEntryForm = ({
         if (!row.category) return 'Category is required';
         if (!row.note) return 'Note is required';
         break;
+      case FORM_TYPES.PTO:
+        if (!row.hours && row.hours !== 0) return 'Hours is required';
+        break;
       default:
         return 'Unknown entry type';
     }
@@ -163,6 +169,13 @@ const BulkEntryForm = ({
             date,
             category: row.category,
             note: row.note
+          };
+          break;
+        case FORM_TYPES.PTO:
+          entryData = {
+            date,
+            hours: parseFloat(row.hours) || 0,
+            note: row.note || ''
           };
           break;
       }
@@ -317,6 +330,27 @@ const BulkEntryForm = ({
               value={row.note}
               onChange={(e) => handleRowChange(row.id, 'note', e.target.value)}
               className="bulk-entry-form__field bulk-entry-form__field--large"
+            />
+          </>
+        );
+      case FORM_TYPES.PTO:
+        return (
+          <>
+            <TextField
+              placeholder="Hours"
+              type="number"
+              size="small"
+              value={row.hours}
+              onChange={(e) => handleRowChange(row.id, 'hours', e.target.value)}
+              inputProps={{ min: 0, step: 0.5 }}
+              className="bulk-entry-form__field bulk-entry-form__field--small"
+            />
+            <TextField
+              placeholder="Note"
+              size="small"
+              value={row.note}
+              onChange={(e) => handleRowChange(row.id, 'note', e.target.value)}
+              className="bulk-entry-form__field bulk-entry-form__field--medium"
             />
           </>
         );

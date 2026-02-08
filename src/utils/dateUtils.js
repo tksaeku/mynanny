@@ -83,6 +83,70 @@ export const getWeekEnd = (date) => {
 };
 
 /**
+ * Get the start of the bi-weekly period for a given date
+ * Uses a fixed epoch (Jan 5, 2025 - a Sunday) to determine consistent 2-week cycles
+ * @param {Date} date
+ * @returns {Date}
+ */
+export const getBiweeklyStart = (date) => {
+  const epoch = new Date(2025, 0, 5); // Jan 5, 2025 (Sunday)
+  const weekStart = getWeekStart(date);
+  const diffMs = weekStart.getTime() - epoch.getTime();
+  const diffWeeks = Math.floor(diffMs / (7 * 24 * 60 * 60 * 1000));
+  const periodWeeks = diffWeeks - ((diffWeeks % 2) + 2) % 2; // align to even week offset
+  const d = new Date(epoch);
+  d.setDate(d.getDate() + periodWeeks * 7);
+  d.setHours(0, 0, 0, 0);
+  return d;
+};
+
+/**
+ * Get the end of the bi-weekly period for a given date
+ * @param {Date} date
+ * @returns {Date}
+ */
+export const getBiweeklyEnd = (date) => {
+  const start = getBiweeklyStart(date);
+  const d = new Date(start);
+  d.setDate(d.getDate() + 13);
+  d.setHours(23, 59, 59, 999);
+  return d;
+};
+
+/**
+ * Get bi-weekly range label
+ * @param {Date} date
+ * @returns {string}
+ */
+export const getBiweeklyRangeLabel = (date) => {
+  const start = getBiweeklyStart(date);
+  const end = getBiweeklyEnd(date);
+  return `${formatDateDisplay(start)} - ${formatDateDisplay(end)}`;
+};
+
+/**
+ * Navigate to previous bi-weekly period
+ * @param {Date} date
+ * @returns {Date}
+ */
+export const getPreviousBiweek = (date) => {
+  const d = new Date(date);
+  d.setDate(d.getDate() - 14);
+  return d;
+};
+
+/**
+ * Navigate to next bi-weekly period
+ * @param {Date} date
+ * @returns {Date}
+ */
+export const getNextBiweek = (date) => {
+  const d = new Date(date);
+  d.setDate(d.getDate() + 14);
+  return d;
+};
+
+/**
  * Get the start of the month for a given date
  * @param {Date} date
  * @returns {Date}

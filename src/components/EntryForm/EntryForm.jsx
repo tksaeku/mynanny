@@ -17,6 +17,8 @@ const getInitialValues = (formType) => {
       return { date: today, amount: '', category: '', description: '' };
     case FORM_TYPES.NOTES:
       return { date: today, category: '', note: '' };
+    case FORM_TYPES.PTO:
+      return { date: today, hours: '', note: '' };
     default:
       return { date: today };
   }
@@ -59,6 +61,8 @@ const EntryForm = ({
         return `${action} Expense Entry`;
       case FORM_TYPES.NOTES:
         return `${action} Note`;
+      case FORM_TYPES.PTO:
+        return `${action} PTO Entry`;
       default:
         return `${action} Entry`;
     }
@@ -215,6 +219,39 @@ const EntryForm = ({
               multiline
               rows={4}
               placeholder="Enter your note..."
+            />
+          </>
+        );
+
+      case FORM_TYPES.PTO:
+        return (
+          <>
+            <TextField
+              label="Date"
+              type="date"
+              value={values.date || ''}
+              onChange={handleChange('date')}
+              fullWidth
+              required
+              InputLabelProps={{ shrink: true }}
+            />
+            <TextField
+              label="Hours"
+              type="number"
+              value={values.hours || ''}
+              onChange={handleChange('hours')}
+              fullWidth
+              required
+              inputProps={{ min: 0, step: 0.5 }}
+            />
+            <TextField
+              label="Note"
+              value={values.note || ''}
+              onChange={handleChange('note')}
+              fullWidth
+              multiline
+              rows={2}
+              placeholder="e.g., Vacation day, Personal day"
             />
           </>
         );

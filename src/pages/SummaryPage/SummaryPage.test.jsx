@@ -32,7 +32,8 @@ describe('SummaryPage', () => {
   it('renders view toggle', () => {
     render(<SummaryPage {...defaultProps} />);
 
-    expect(screen.getByRole('button', { name: /weekly/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /^weekly$/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /bi-weekly/i })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /monthly/i })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /all time/i })).toBeInTheDocument();
   });

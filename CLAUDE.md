@@ -60,9 +60,19 @@ The app expects these sheet tabs:
 - **Notes**: Date, Category, Note
 - **Config**: Key-value pairs for rates (Regular Hourly Rate, Overtime Rate, Mileage Rate)
 
+## Architecture Consultation Rule
+
+**CRITICAL**: Before making ANY code changes, adding features, fixing bugs, refactoring, writing tests, or researching the codebase, you MUST first consult the `mynanny-architecture` skill. This skill contains the complete application architecture, data flow, component hierarchy, service layer design, and coding conventions. Read the relevant reference files from `.claude/skills/mynanny-architecture/references/` based on what you're working on:
+- Modifying components → read `references/components.md`
+- Changing services or backend → read `references/services-and-backend.md`
+- Working with calculations or dates → read `references/utils-and-calculations.md`
+- Modifying pages → read `references/pages.md`
+- Styling changes → read `references/styling.md`
+
 ## Skills
 
 See `.claude/skills/` for detailed conventions:
+- `mynanny-architecture/` - **Complete application architecture** (MUST consult before any changes)
 - `js-conventions/` - JavaScript/TypeScript coding standards
 - `unit-test-creator/` - Unit testing conventions (Vitest)
 
