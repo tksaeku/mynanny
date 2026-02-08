@@ -66,3 +66,48 @@ const result: any = someComplexFunction();
 - Each test completely independent
 - Tests run in any order
 - No shared state
+
+## React Component Props
+Use factory functions for props with mocks - prevents shared mock state between tests:
+
+```typescript
+// WRONG - shared mocks can leak between tests
+const defaultProps = {
+  onAdd: vi.fn(),
+  onDelete: vi.fn()
+};
+
+// CORRECT - fresh mocks for each test
+const createDefaultProps = () => ({
+  data: mockData,
+  onAdd: vi.fn().mockResolvedValue(undefined),
+  onEdit: vi.fn().mockResolvedValue(undefined),
+  onDelete: vi.fn().mockResolvedValue(undefined)
+});
+
+it('calls onAdd when submitted', async () => {
+  const props = createDefaultProps();
+  render(<MyComponent {...props} />);
+  // ...
+  expect(props.onAdd).toHaveBeenCalledWith(expect.objectContaining({ id: 1 }));
+});
+```
+
+## Testing Async Callbacks
+Use `waitFor` when testing callbacks that trigger async operations:
+
+```typescript
+it('calls onDelete when confirmed', async () => {
+  const props = createDefaultProps();
+  vi.spyOn(window, 'confirm').mockReturnValue(true);
+
+  render(<MyComponent {...props} />);
+  fireEvent.click(screen.getByRole('button', { name: /delete/i }));
+
+  await waitFor(() => {
+    expect(props.onDelete).toHaveBeenCalledTimes(1);
+  });
+
+  vi.restoreAllMocks();
+});
+```

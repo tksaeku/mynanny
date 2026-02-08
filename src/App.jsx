@@ -2,11 +2,12 @@ import { useState, useEffect, useCallback } from 'react';
 import { CircularProgress, Alert, Snackbar } from '@mui/material';
 import TabNavigation from './components/TabNavigation';
 import PasswordGate, { isAuthenticated } from './components/PasswordGate';
-import SummaryPage from './pages/SummaryPage';
+import HomePage from './pages/HomePage';
 import HoursPage from './pages/HoursPage';
 import MileagePage from './pages/MileagePage';
 import ExpensesPage from './pages/ExpensesPage';
 import NotesPage from './pages/NotesPage';
+import PTOPage from './pages/PTOPage';
 import {
   fetchAllData,
   addHoursEntry,
@@ -20,7 +21,10 @@ import {
   deleteHoursEntry,
   deleteMileageEntry,
   deleteExpenseEntry,
-  deleteNotesEntry
+  deleteNotesEntry,
+  addPTOEntry,
+  updatePTOEntry,
+  deletePTOEntry
 } from './services/googleSheets';
 import { formatDateDisplay, getDayOfMonth } from './utils/dateUtils';
 import { calculateTotalHours } from './utils/calculations';
@@ -34,7 +38,10 @@ const App = () => {
     mileage: [],
     expenses: [],
     notes: [],
-    config: {}
+    pto: [],
+    config: {},
+    withholdings: [],
+    employer: []
   });
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -238,6 +245,47 @@ const App = () => {
     }
   };
 
+  // PTO handlers
+  const handleAddPTO = async (entry) => {
+    try {
+      await addPTOEntry({
+        date: formatDateDisplay(entry.date),
+        hours: entry.hours,
+        note: entry.note || ''
+      });
+      showNotification('PTO entry added successfully');
+      await loadData();
+    } catch (err) {
+      showNotification(err.message || 'Failed to add PTO entry', 'error');
+      throw err;
+    }
+  };
+
+  const handleEditPTO = async (entry) => {
+    try {
+      await updatePTOEntry(entry.id, {
+        date: formatDateDisplay(entry.date),
+        hours: entry.hours,
+        note: entry.note || ''
+      });
+      showNotification('PTO entry updated successfully');
+      await loadData();
+    } catch (err) {
+      showNotification(err.message || 'Failed to update PTO entry', 'error');
+      throw err;
+    }
+  };
+
+  const handleDeletePTO = async (entry) => {
+    try {
+      await deletePTOEntry(entry.id);
+      showNotification('PTO entry deleted successfully');
+      await loadData();
+    } catch (err) {
+      showNotification(err.message || 'Failed to delete PTO entry', 'error');
+    }
+  };
+
   // Bulk add handler - processes all entries and only reloads once
   const handleBulkAdd = async (entries) => {
     const errors = [];
@@ -275,6 +323,13 @@ const App = () => {
               date: formatDateDisplay(entry.date),
               category: entry.category,
               note: entry.note
+            });
+            break;
+          case 'pto':
+            await addPTOEntry({
+              date: formatDateDisplay(entry.date),
+              hours: entry.hours,
+              note: entry.note || ''
             });
             break;
           default:
@@ -319,12 +374,15 @@ const App = () => {
     switch (activeTab) {
       case 'summary':
         return (
-          <SummaryPage
+          <HomePage
             hours={data.hours}
             mileage={data.mileage}
             expenses={data.expenses}
             notes={data.notes}
+            pto={data.pto}
             config={data.config}
+            withholdings={data.withholdings}
+            employer={data.employer}
             onBulkAdd={handleBulkAdd}
           />
         );
@@ -362,6 +420,15 @@ const App = () => {
             onAdd={handleAddNote}
             onEdit={handleEditNote}
             onDelete={handleDeleteNote}
+          />
+        );
+      case 'pto':
+        return (
+          <PTOPage
+            data={data.pto}
+            onAdd={handleAddPTO}
+            onEdit={handleEditPTO}
+            onDelete={handleDeletePTO}
           />
         );
       default:
